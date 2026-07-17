@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.chat-markdown p {
+  margin-bottom: 0.5rem;
+}
+
+.chat-markdown p:last-child {
+  margin-bottom: 0;
+}
+
+.chat-markdown strong {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.chat-markdown ul,
+.chat-markdown ol {
+  margin: 0.4rem 0 0.6rem 1.1rem;
+}
+
+.chat-markdown ul {
+  list-style-type: disc;
+}
+
+.chat-markdown ol {
+  list-style-type: decimal;
+}
+
+.chat-markdown li {
+  margin-bottom: 0.25rem;
+}
+
+.chat-markdown h1,
+.chat-markdown h2,
+.chat-markdown h3 {
+  font-weight: 700;
+  color: #ffffff;
+  margin-top: 0.6rem;
+  margin-bottom: 0.3rem;
+}
+
+.light-theme {
+  background-color: #f9fafb !important;
+  color: #111827 !important;
+}
+
+.light-theme .bg-black {
+  background-color: #f9fafb !important;
+}
+
+.light-theme .bg-gray-950 {
+  background-color: #f3f4f6 !important;
+}
+
+.light-theme .bg-gray-900 {
+  background-color: #ffffff !important;
+}
+
+.light-theme .bg-gray-800 {
+  background-color: #f3f4f6 !important;
+}
+
+.light-theme .text-white {
+  color: #111827 !important;
+}
+
+.light-theme .text-gray-400 {
+  color: #6b7280 !important;
+}
+
+.light-theme .text-gray-300 {
+  color: #374151 !important;
+}
+
+.light-theme .border-gray-800 {
+  border-color: #e5e7eb !important;
+}
+
+.light-theme .bg-gray-700 {
+  background-color: #e5e7eb !important;
+}
+
+@keyframes sidebarPulse {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes particleFade {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.8; }
+}

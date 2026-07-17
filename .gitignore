@@ -1,0 +1,31 @@
+# Secret files - NEVER push these
+YOUTUBE ANALYSIS PROJECT -.txt
+backend/.env
+backend/client_secret.json
+
+# Python
+backend/venv/
+backend/.venv/
+backend/__pycache__/
+backend/*.pyc
+backend/*.pyo
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Logs
+*.log
+vite-dev-err.log
+vite-dev-out.log
