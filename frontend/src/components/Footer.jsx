@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Heart, ExternalLink } from "lucide-react";
+import BACKEND_URL from "../services/config";
 
 function Footer() {
   return (
@@ -89,7 +90,7 @@ function Footer() {
               </li>
               <li>
                 <a
-                  href="http://localhost:8000/auth/youtube/login"
+                  href={`${BACKEND_URL}/auth/youtube/login`}
                   className="hover:text-white transition"
                 >
                   Connect YouTube

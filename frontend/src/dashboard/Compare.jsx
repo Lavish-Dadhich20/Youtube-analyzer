@@ -5,6 +5,7 @@ import ScoreCircle from "../components/ScoreCircle";
 import ReactMarkdown from "react-markdown";
 import { Search, Users, Video, Eye, TrendingUp, Award } from "lucide-react";
 import { motion } from "framer-motion";
+import BACKEND_URL from "../services/config";
 
 function StatCard({ label, value1, value2, icon: Icon, winner }) {
   return (
@@ -86,7 +87,7 @@ function Compare({ data }) {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:8000/chat/youtuber", {
+      const res = await fetch("${BACKEND_URL}/chat/youtuber", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -161,7 +162,7 @@ Keep it concise — 3-4 sentences max.`,
             ⚠️ Connect your YouTube channel to compare it with competitors.
           </p>
           <a
-            href="http://localhost:8000/auth/youtube/login"
+            href={`${BACKEND_URL}/auth/youtube/login`}
             className="mt-3 inline-block bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
           >
             Connect Channel →

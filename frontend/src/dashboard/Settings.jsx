@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { User, Video, Moon, Sun, Bell, Shield, Trash2, Tv } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import BACKEND_URL from "../services/config";
 
 function Settings({ data, onLogout }) {
   const [theme, setTheme] = useState(
@@ -30,7 +31,7 @@ function Settings({ data, onLogout }) {
     setDeleting(true);
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:8000/auth/delete-account", {
+      const response = await fetch("${BACKEND_URL}/auth/delete-account", {
         method: "DELETE",
         headers: { authorization: `Bearer ${token}` },
       });
@@ -123,7 +124,7 @@ function Settings({ data, onLogout }) {
                 <p className="text-gray-400 text-sm">Connect a different YouTube account</p>
               </div>
               <a
-                href="http://localhost:8000/auth/youtube/login"
+                href={`${BACKEND_URL}/auth/youtube/login`}
                 className="bg-gray-800 hover:bg-gray-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition"
               >
                 Switch
@@ -137,7 +138,7 @@ function Settings({ data, onLogout }) {
               <p className="text-gray-400 text-sm">Verify ownership of your YouTube channel</p>
             </div>
             <a
-              href="http://localhost:8000/auth/youtube/login"
+              href={`${BACKEND_URL}/auth/youtube/login`}
               className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition"
             >
               Connect

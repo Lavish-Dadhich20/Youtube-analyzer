@@ -5,6 +5,7 @@ import {
 } from "recharts";
 import { formatCompactNumber, formatNumber } from "../services/format";
 import { BarChart2 } from "lucide-react";
+import BACKEND_URL from "../services/config";
 
 const tooltipStyle = {
   backgroundColor: "#111827",
@@ -49,7 +50,7 @@ function Analytics({ data }) {
             ⚠️ No channel connected. Connect your YouTube channel to unlock real analytics.
           </p>
           <a
-            href="http://localhost:8000/auth/youtube/login"
+            href={`${BACKEND_URL}/auth/youtube/login`}
             className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition"
           >
             Connect Now

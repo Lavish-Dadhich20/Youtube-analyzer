@@ -2,6 +2,7 @@ import { formatNumber } from "../services/format";
 import ScoreCircle from "../components/ScoreCircle";
 import ReactMarkdown from "react-markdown";
 import { Users, Video, Eye, CheckCircle, AlertCircle } from "lucide-react";
+import BACKEND_URL from "../services/config";
 
 function Overview({ data }) {
   const healthScore = () => {
@@ -109,7 +110,7 @@ function Overview({ data }) {
             </p>
           </div>
           <a
-            href="http://localhost:8000/auth/youtube/login"
+            href={`${BACKEND_URL}/auth/youtube/login`}
             className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition whitespace-nowrap"
           >
             Connect Now →

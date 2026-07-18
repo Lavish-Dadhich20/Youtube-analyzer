@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Mic, MicOff, Copy, Check, Sparkles, RefreshCw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import useVoiceInput from "../hooks/useVoiceInput";
+import BACKEND_URL from "../services/config";
 
 function TitleGenerator() {
   const [topic, setTopic] = useState("");
@@ -36,7 +37,7 @@ function TitleGenerator() {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:8000/chat/youtuber", {
+      const res = await fetch(`${BACKEND_URL}/chat/youtuber`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser, registerUser } from "../services/api";
 import ParticleBackground from "../components/ParticleBackground";
+import BACKEND_URL from "../services/config";
 
 function Login() {
   const [isRegister, setIsRegister] = useState(false);
@@ -136,7 +137,7 @@ function Login() {
           </div>
 
           <a
-            href="http://localhost:8000/auth/youtube/login"
+            href={`${BACKEND_URL}/auth/youtube/login`}
             className="mt-4 w-full flex items-center justify-center gap-3 bg-white hover:bg-gray-100 text-gray-900 py-3 rounded-lg font-semibold transition"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">

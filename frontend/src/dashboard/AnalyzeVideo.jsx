@@ -8,6 +8,7 @@ import { Search, Play, ExternalLink } from "lucide-react";
 import { motion } from "framer-motion";
 import { Mic, MicOff } from "lucide-react";
 import useVoiceInput from "../hooks/useVoiceInput";
+import BACKEND_URL from "../services/config";
 
 function AnalyzeVideo({ data }) {
   const [url, setUrl] = useState("");
@@ -254,7 +255,7 @@ function AnalyzeVideo({ data }) {
             Verify your channel to browse and analyze your own videos directly here.
           </p>
           <a
-            href="http://localhost:8000/auth/youtube/login"
+            href={`${BACKEND_URL}/auth/youtube/login`}
             className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg text-sm font-semibold transition inline-block"
           >
             Connect Channel →
