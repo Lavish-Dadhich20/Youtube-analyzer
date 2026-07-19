@@ -69,7 +69,7 @@ function DashboardLayout({ data, onLogout }) {
       <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${
         collapsed ? "md:ml-16" : "md:ml-64"
       }`}>
-        <header className="sticky top-0 z-10 bg-black border-b border-gray-800 px-4 py-3 flex items-center gap-4">
+        <header className="sticky top-0 z-40 bg-black border-b border-gray-800 px-4 py-3 flex items-center gap-4">
           <button
             onClick={() => setCollapsed(!collapsed)}
             className="md:hidden text-gray-400 hover:text-white transition flex-shrink-0"
