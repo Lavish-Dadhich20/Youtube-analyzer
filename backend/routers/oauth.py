@@ -19,6 +19,7 @@ router = APIRouter(prefix="/auth", tags=["OAuth"])
 
 SECRET_KEY = os.getenv("SECRET_KEY", "youtube_analyzer_secret_key_2026_secure")
 REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI", "http://localhost:8000/auth/youtube/callback")
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
 CLIENT_SECRETS_FILE = os.path.join(
     os.path.dirname(__file__), "..", "client_secret.json"
@@ -75,8 +76,8 @@ async def youtube_callback(
 ):
     if error:
         return RedirectResponse(
-            f"http://localhost:5173/dashboard?oauth_error={error}"
-        )
+        f"{FRONTEND_URL}/dashboard?oauth_error=failed"
+    )
 
     if not code:
         raise HTTPException(status_code=400, detail="No code received")
@@ -181,12 +182,13 @@ async def youtube_callback(
             algorithm="HS256"
         )
 
+        FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
         return RedirectResponse(
-            f"http://localhost:5173/dashboard?token={token}&name={name}&oauth=success"
-        )
+        f"{FRONTEND_URL}/dashboard?token={token}&name={name}&oauth=success"
+)
 
     except Exception as e:
         print(f"OAuth error: {e}")
         return RedirectResponse(
-            f"http://localhost:5173/dashboard?oauth_error=failed"
-        )
+        f"{FRONTEND_URL}/dashboard?oauth_error={error}"
+)
