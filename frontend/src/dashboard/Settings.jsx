@@ -31,7 +31,7 @@ function Settings({ data, onLogout }) {
     setDeleting(true);
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("${BACKEND_URL}/auth/delete-account", {
+      const response = await fetch(`${BACKEND_URL}/auth/delete-account`, {
         method: "DELETE",
         headers: { authorization: `Bearer ${token}` },
       });

@@ -102,7 +102,7 @@ function DashboardLayout({ data, onLogout }) {
               </button>
 
               {showNotifications && (
-                <div className="absolute right-0 top-10 w-80 bg-gray-900 border border-gray-800 rounded-xl shadow-2xl z-50">
+                <div className="absolute right-0 top-10 w-80 bg-gray-900 border border-gray-800 rounded-xl shadow-2xl z-[100]">
                   <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
                     <h4 className="text-white font-bold text-sm">Notifications</h4>
                     <button
