@@ -12,6 +12,7 @@ import PredictIdea from "./PredictIdea";
 import Compare from "./Compare";
 import TitleGenerator from "./TitleGenerator";
 import ParticleBackground from "../components/ParticleBackground";
+import FeedbackModal from "../components/FeedbackModal";
 
 const NOTIFICATIONS = [
   { id: 1, text: "AI analysis complete for your last video", time: "2m ago", unread: true },
@@ -25,14 +26,13 @@ function DashboardLayout({ data, onLogout }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState(NOTIFICATIONS);
   const notifRef = useRef(null);
+  const [showFeedback, setShowFeedback] = useState(false);
 
   const unreadCount = notifications.filter((n) => n.unread).length;
 
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (notifRef.current && !notifRef.current.contains(e.target)) {
-        setShowNotifications(false);
-      }
+   const handleLogoutClick = () => {
+    setShowFeedback(true);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -61,7 +61,7 @@ function DashboardLayout({ data, onLogout }) {
       <Sidebar
         activeSection={activeSection}
         setActiveSection={setActiveSection}
-        onLogout={onLogout}
+        onLogout={handleLogoutClick}
         collapsed={collapsed}
         setCollapsed={setCollapsed}
       />
@@ -144,6 +144,12 @@ function DashboardLayout({ data, onLogout }) {
       </div>
 
       <Chatbot />
+      {showFeedback && (
+        <FeedbackModal
+          onClose={() => setShowFeedback(false)}
+          onLogout={onLogout}
+        />
+      )}
     </div>
   );
 }
