@@ -2,6 +2,7 @@ import { useState } from "react";
 import { User, Video, Moon, Sun, Bell, Shield, Trash2, Tv } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import BACKEND_URL from "../services/config";
+import FeedbackModal from "../components/FeedbackModal";
 
 function Settings({ data, handleLogoutClick }) {
   const [theme, setTheme] = useState(
