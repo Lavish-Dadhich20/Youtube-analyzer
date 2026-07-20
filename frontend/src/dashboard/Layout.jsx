@@ -26,13 +26,15 @@ function DashboardLayout({ data, onLogout }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState(NOTIFICATIONS);
   const notifRef = useRef(null);
-  const [showFeedback, setShowFeedback] = useState(false);
+  
 
   const unreadCount = notifications.filter((n) => n.unread).length;
 
   useEffect(() => {
-   const handleLogoutClick = () => {
-    setShowFeedback(true);
+    const handleClickOutside = (e) => {
+      if (notifRef.current && !notifRef.current.contains(e.target)) {
+        setShowNotifications(false);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -61,7 +63,7 @@ function DashboardLayout({ data, onLogout }) {
       <Sidebar
         activeSection={activeSection}
         setActiveSection={setActiveSection}
-        onLogout={handleLogoutClick}
+        onLogout={onLogout}
         collapsed={collapsed}
         setCollapsed={setCollapsed}
       />
@@ -144,12 +146,6 @@ function DashboardLayout({ data, onLogout }) {
       </div>
 
       <Chatbot />
-      {showFeedback && (
-        <FeedbackModal
-          onClose={() => setShowFeedback(false)}
-          onLogout={onLogout}
-        />
-      )}
     </div>
   );
 }
