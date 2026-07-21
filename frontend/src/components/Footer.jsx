@@ -160,6 +160,13 @@ function Footer() {
           </div>
         </div>
       </div>
+      <div className="flex items-center gap-3 text-xs text-gray-600">
+            <Link to="/privacy" className="hover:text-white transition">Privacy Policy</Link>
+            <span>•</span>
+            <Link to="/terms" className="hover:text-white transition">Terms of Service</Link>
+            <span>•</span>
+            <span>v1.0.0</span>
+          </div>
     </footer>
   );
 }

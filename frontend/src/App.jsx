@@ -9,6 +9,8 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Predict from "./pages/Predict";
 import Footer from "./components/Footer";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
 
 const pageVariants = {
   initial: { opacity: 0, y: 16 },
@@ -51,6 +53,9 @@ function AppContent() {
           <Route path="/predict" element={<AnimatedRoute><Predict /></AnimatedRoute>} />
           <Route path="/login" element={<AnimatedRoute><Login /></AnimatedRoute>} />
           <Route path="/dashboard" element={<AnimatedRoute><Dashboard /></AnimatedRoute>} />
+          <Route path="/privacy" element={<AnimatedRoute><PrivacyPolicy /></AnimatedRoute>} />
+          <Route path="/terms" element={<AnimatedRoute><TermsOfService /></AnimatedRoute>} />  
+          
         </Routes>
       </AnimatePresence>
 
