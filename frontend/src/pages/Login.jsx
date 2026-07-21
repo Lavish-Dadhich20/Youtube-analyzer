@@ -5,6 +5,7 @@ import ParticleBackground from "../components/ParticleBackground";
 import BACKEND_URL from "../services/config";
 
 function Login() {
+  const [agreed, setAgreed] = useState(false);
   const [isRegister, setIsRegister] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -12,6 +13,7 @@ function Login() {
   const [channelUrl, setChannelUrl] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  
 
   const navigate = useNavigate();
 
@@ -56,18 +58,33 @@ function Login() {
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {isRegister && (
-            <div>
-              <label className="text-sm text-gray-400 block mb-1">
-                Your Name
-              </label>
+         {isRegister && (
+            <div className="flex items-start gap-3">
               <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                className="w-full bg-black border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-red-600"
+                type="checkbox"
+                id="agree"
+                checked={agreed}
+                onChange={(e) => setAgreed(e.target.checked)}
+                className="mt-1 w-4 h-4 accent-red-600 cursor-pointer flex-shrink-0"
               />
+              <label htmlFor="agree" className="text-gray-400 text-sm cursor-pointer">
+                I agree to the{" "}
+                <a
+                  href="/terms"
+                  target="_blank"
+                  className="text-red-500 hover:text-red-400 underline"
+                >
+                  Terms of Service
+                </a>{" "}
+                and{" "}
+                <a
+                  href="/privacy"
+                  target="_blank"
+                  className="text-red-500 hover:text-red-400 underline"
+                >
+                  Privacy Policy
+                </a>
+              </label>
             </div>
           )}
 
@@ -115,7 +132,7 @@ function Login() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || (isRegister && !agreed)}
             className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white py-3 rounded-lg font-semibold transition"
           >
             {loading
@@ -168,6 +185,7 @@ function Login() {
             onClick={() => {
               setIsRegister(!isRegister);
               setError("");
+              setAgreed(false);
             }}
             className="text-red-500 hover:text-red-400 font-semibold"
           >
