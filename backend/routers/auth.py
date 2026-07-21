@@ -152,7 +152,7 @@ async def delete_account(authorization: str = Header(None)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
-    class FeedbackRequest(BaseModel):
+class FeedbackRequest(BaseModel):
     rating: int
     category: str = ""
     comment: str = ""
