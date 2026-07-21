@@ -3,7 +3,7 @@ import { User, Video, Moon, Sun, Bell, Shield, Trash2, Tv } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import BACKEND_URL from "../services/config";
 
-function Settings({ data, onLogout }) {
+function Settings({ data, handleLogoutClick }) {
   const [theme, setTheme] = useState(
     localStorage.getItem("theme") || "dark"
   );

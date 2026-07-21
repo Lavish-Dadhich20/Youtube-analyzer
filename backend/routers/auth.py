@@ -152,4 +152,44 @@ async def delete_account(authorization: str = Header(None)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
-    
+    class FeedbackRequest(BaseModel):
+    rating: int
+    category: str = ""
+    comment: str = ""
+
+@router.post("/feedback")
+async def submit_feedback(
+    request: FeedbackRequest,
+    authorization: str = Header(None)
+):
+    try:
+        name = "Anonymous"
+        email = "anonymous"
+
+        if authorization and authorization.startswith("Bearer "):
+            try:
+                token = authorization.split(" ")[1]
+                payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+                email = payload.get("email", "anonymous")
+                users = db["users"]
+                user = users.find_one({"email": email})
+                if user:
+                    name = user.get("name", "Anonymous")
+            except:
+                pass
+
+        feedback_collection = db["feedback"]
+        feedback_collection.insert_one({
+            "name": name,
+            "email": email,
+            "rating": request.rating,
+            "category": request.category,
+            "comment": request.comment,
+            "submitted_at": datetime.now().isoformat(),
+        })
+
+        print(f"✅ Feedback from {name}: {request.rating}⭐ - {request.category}")
+
+        return {"message": "Feedback submitted successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
