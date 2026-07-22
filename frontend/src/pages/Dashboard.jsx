@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { getDashboardOverview } from "../services/api";
 import DashboardLayout from "../dashboard/Layout";
+import TermsAgreementModal from "../components/TermsAgreementModal";
 
 function Dashboard() {
   const [data, setData] = useState(null);
@@ -10,6 +11,7 @@ function Dashboard() {
 
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const [showTerms, setShowTerms] = useState(false);
 
   useEffect(() => {
     let token = localStorage.getItem("token");
@@ -33,6 +35,18 @@ function Dashboard() {
     if (!token) {
       navigate("/login");
       return;
+    }
+    if (urlToken) {
+      localStorage.setItem("token", urlToken);
+      if (urlName) localStorage.setItem("name", urlName);
+      token = urlToken;
+      window.history.replaceState({}, "", "/dashboard");
+      
+      // Check if first time OAuth login
+      const hasAgreed = localStorage.getItem("terms_agreed");
+      if (!hasAgreed) {
+        setShowTerms(true);
+      }
     }
 
     const fetchOverview = async () => {
@@ -89,6 +103,19 @@ function Dashboard() {
   }
 
   return <DashboardLayout data={data} onLogout={handleLogout} />;
+  {showTerms && (
+        <TermsAgreementModal
+          onAgree={() => {
+            localStorage.setItem("terms_agreed", "true");
+            setShowTerms(false);
+          }}
+          onDecline={() => {
+            localStorage.removeItem("token");
+            localStorage.removeItem("name");
+            navigate("/login");
+          }}
+        />
+      )}
 }
 
 export default Dashboard;
