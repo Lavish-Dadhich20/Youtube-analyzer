@@ -193,3 +193,25 @@ async def submit_feedback(
         return {"message": "Feedback submitted successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/agree-terms")
+async def agree_terms(authorization: str = Header(None)):
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Not logged in")
+    try:
+        token = authorization.split(" ")[1]
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        email = payload.get("email")
+
+        users = db["users"]
+        users.update_one(
+            {"email": email},
+            {"$set": {
+                "terms_agreed": True,
+                "terms_agreed_at": datetime.now().isoformat()
+            }}
+        )
+        print(f"✅ Terms agreed by {email}")
+        return {"message": "Terms agreement saved"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

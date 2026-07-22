@@ -41,18 +41,20 @@ function Dashboard() {
       if (urlName) localStorage.setItem("name", urlName);
       token = urlToken;
       window.history.replaceState({}, "", "/dashboard");
-      
-      // Check if first time OAuth login
-      const hasAgreed = localStorage.getItem("terms_agreed");
-      if (!hasAgreed) {
-        setShowTerms(true);
-      }
     }
 
     const fetchOverview = async () => {
       try {
         const result = await getDashboardOverview(token);
         setData(result);
+
+        // Check if terms agreed in MongoDB
+        if (!result.terms_agreed) {
+          const localAgreed = localStorage.getItem("terms_agreed");
+          if (!localAgreed) {
+            setShowTerms(true);
+          }
+        }
       } catch (err) {
         setError("Failed to load dashboard. Please login again.");
         localStorage.removeItem("token");

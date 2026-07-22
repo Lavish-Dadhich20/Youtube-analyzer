@@ -53,6 +53,7 @@ async def get_overview(authorization: str = Header(None)):
         return {
             "user": user_data["name"],
             "email": user_data["email"],
+            "terms_agreed": user_data.get("terms_agreed", False),
             "channel_url": user_data.get("channel_url", ""),
             "channel_name": user_data.get("channel_name", ""),
             "channel_id": user_data.get("channel_id", ""),

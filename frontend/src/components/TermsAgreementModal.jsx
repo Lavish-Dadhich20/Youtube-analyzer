@@ -2,9 +2,32 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ShieldCheck } from "lucide-react";
+import BACKEND_URL from "../services/config";
 
 function TermsAgreementModal({ onAgree, onDecline }) {
   const [agreed, setAgreed] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const handleAgree = async () => {
+    setSaving(true);
+    try {
+      const token = localStorage.getItem("token");
+      await fetch(`${BACKEND_URL}/auth/agree-terms`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+      });
+      localStorage.setItem("terms_agreed", "true");
+      onAgree();
+    } catch (err) {
+      localStorage.setItem("terms_agreed", "true");
+      onAgree();
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-90 z-[300] flex items-center justify-center px-4">
@@ -81,11 +104,11 @@ function TermsAgreementModal({ onAgree, onDecline }) {
             Decline & Logout
           </button>
           <button
-            onClick={onAgree}
-            disabled={!agreed}
+            onClick={handleAgree}
+            disabled={!agreed || saving}
             className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white py-2.5 rounded-lg text-sm font-semibold transition"
           >
-            Agree & Continue
+            {saving ? "Saving..." : "Agree & Continue"}
           </button>
         </div>
       </motion.div>
