@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { User, Video, Moon, Sun, Bell, Shield, Trash2, Tv } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { User, Video, Moon, Sun, Bell, Shield, Trash2, Tv } from "lucide-react";
 import BACKEND_URL from "../services/config";
 
-function Settings({ data, handleLogoutClick }) {
+function Settings({ data, onLogout }) {
+  const navigate = useNavigate();
   const [theme, setTheme] = useState(
     localStorage.getItem("theme") || "dark"
   );
