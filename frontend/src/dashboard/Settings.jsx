@@ -43,6 +43,7 @@ function Settings({ data, onLogout }) {
       localStorage.removeItem("token");
       localStorage.removeItem("name");
       localStorage.removeItem("theme");
+      localStorage.removeItem("terms_agreed");  // ← add this
       document.documentElement.classList.remove("light-theme");
       navigate("/login");
     } catch (err) {
