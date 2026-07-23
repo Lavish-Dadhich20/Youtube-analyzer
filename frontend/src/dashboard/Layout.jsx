@@ -23,7 +23,10 @@ const NOTIFICATIONS = [
 
 function DashboardLayout({ data, onLogout }) {
   const [activeSection, setActiveSection] = useState("overview");
-  const [collapsed, setCollapsed] = useState(false);
+  // Start collapsed on mobile so the sidebar doesn't cover the dashboard on first load
+  const [collapsed, setCollapsed] = useState(() =>
+    typeof window !== "undefined" ? window.innerWidth < 768 : false
+  );
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState(NOTIFICATIONS);
   const [showFeedback, setShowFeedback] = useState(false);
@@ -65,7 +68,7 @@ function DashboardLayout({ data, onLogout }) {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex">
+    <div className="min-h-screen bg-black text-white flex overflow-x-hidden">
       <Sidebar
         activeSection={activeSection}
         setActiveSection={setActiveSection}
@@ -74,7 +77,7 @@ function DashboardLayout({ data, onLogout }) {
         setCollapsed={setCollapsed}
       />
 
-      <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${
+      <div className={`flex-1 flex flex-col min-h-screen min-w-0 transition-all duration-300 ${
         collapsed ? "md:ml-16" : "md:ml-64"}`}>
         <header className="sticky top-0 z-40 bg-black border-b border-gray-800 px-4 py-3">
           <div className="flex items-center gap-4">
@@ -134,9 +137,9 @@ function DashboardLayout({ data, onLogout }) {
           </div>
         </header>
 
-        <main className="flex-1 px-4 sm:px-6 py-8 overflow-y-auto relative">
+        <main className="flex-1 px-4 sm:px-6 py-8 overflow-y-auto overflow-x-hidden relative">
           <ParticleBackground count={25} color="100, 100, 100" contained={true} />
-          <div className="relative z-10">
+          <div className="relative z-10 min-w-0">
             {renderSection()}
           </div>
         </main>
