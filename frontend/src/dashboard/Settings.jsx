@@ -11,7 +11,7 @@ function Settings({ data, onLogout }) {
   const [notifications, setNotifications] = useState(true);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  
+    
   const handleThemeChange = (newTheme) => {
     setTheme(newTheme);
     localStorage.setItem("theme", newTheme);
