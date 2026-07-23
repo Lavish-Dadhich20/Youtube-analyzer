@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Menu, Bell, X, ExternalLink } from "lucide-react";
+import { Menu, Bell, X, } from "lucide-react";
 import { Link } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Overview from "./Overview";
@@ -75,8 +75,7 @@ function DashboardLayout({ data, onLogout }) {
       />
 
       <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${
-        collapsed ? "md:ml-16" : "md:ml-64"
-      }`}>
+        collapsed ? "md:ml-16" : "md:ml-64"}`}>
         <header className="sticky top-0 z-40 bg-black border-b border-gray-800 px-4 py-3">
           <div className="flex items-center gap-4">
             <button
@@ -86,39 +85,7 @@ function DashboardLayout({ data, onLogout }) {
               <Menu size={22} />
             </button>
 
-            <div className="flex-1 max-w-sm hidden sm:block">
-              <input
-                type="text"
-                placeholder="Search dashboard..."
-                className="w-full bg-gray-900 border border-gray-800 rounded-lg pl-4 pr-4 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-red-600"
-              />
-            </div>
-
-            <div className="flex items-center gap-1 ml-auto">
-              <Link
-                to="/analyze"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-400 hover:text-white hover:bg-gray-900 transition"
-              >
-                <ExternalLink size={13} />
-                Analyze
-              </Link>
-              <Link
-                to="/predict"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-400 hover:text-white hover:bg-gray-900 transition"
-              >
-                <ExternalLink size={13} />
-                Predict
-              </Link>
-              <Link
-                to="/trending"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-400 hover:text-white hover:bg-gray-900 transition"
-              >
-                <ExternalLink size={13} />
-                Trending
-              </Link>
-
-              <div className="w-px h-5 bg-gray-800 mx-1" />
-
+            <div className="ml-auto flex items-center gap-3">
               <div className="relative" ref={notifRef}>
                 <button
                   onClick={() => setShowNotifications(!showNotifications)}
@@ -133,7 +100,8 @@ function DashboardLayout({ data, onLogout }) {
                 </button>
 
                 {showNotifications && (
-                  <div className="absolute right-0 top-10 w-80 bg-gray-900 border border-gray-800 rounded-xl shadow-2xl z-[200]">                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
+                  <div className="absolute right-0 top-10 w-80 bg-gray-900 border border-gray-800 rounded-xl shadow-2xl z-[200]">
+                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
                       <h4 className="text-white font-bold text-sm">Notifications</h4>
                       <button
                         onClick={markAllRead}
