@@ -49,11 +49,10 @@ function Dashboard() {
         setData(result);
 
         // Check if terms agreed in MongoDB
-        if (!result.terms_agreed) {
-          const localAgreed = localStorage.getItem("terms_agreed");
-          if (!localAgreed) {
-            setShowTerms(true);
-          }
+        const agreedInDB = result.terms_agreed === true;
+        const agreedLocally = localStorage.getItem("terms_agreed") === "true";
+        if (!agreedInDB && !agreedLocally) {
+          setShowTerms(true);
         }
       } catch (err) {
         setError("Failed to load dashboard. Please login again.");

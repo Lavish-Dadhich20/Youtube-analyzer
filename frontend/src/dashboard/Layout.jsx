@@ -77,7 +77,7 @@ function DashboardLayout({ data, onLogout }) {
       <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${
         collapsed ? "md:ml-16" : "md:ml-64"
       }`}>
-        <header className="sticky top-0 z-10 bg-black border-b border-gray-800 px-4 py-3">
+        <header className="sticky top-0 z-40 bg-black border-b border-gray-800 px-4 py-3">
           <div className="flex items-center gap-4">
             <button
               onClick={() => setCollapsed(!collapsed)}
@@ -133,8 +133,7 @@ function DashboardLayout({ data, onLogout }) {
                 </button>
 
                 {showNotifications && (
-                  <div className="absolute right-0 top-10 w-80 bg-gray-900 border border-gray-800 rounded-xl shadow-2xl z-[100]">
-                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
+                  <div className="absolute right-0 top-10 w-80 bg-gray-900 border border-gray-800 rounded-xl shadow-2xl z-[200]">                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
                       <h4 className="text-white font-bold text-sm">Notifications</h4>
                       <button
                         onClick={markAllRead}
