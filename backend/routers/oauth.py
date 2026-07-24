@@ -176,8 +176,6 @@ async def youtube_callback(
             })
             result = users.insert_one(user)
             user_id = str(result.inserted_id)
-            result = users.insert_one(user)
-            user_id = str(result.inserted_id)
             try:
                 send_oauth_welcome_email(email, name)
             except:
