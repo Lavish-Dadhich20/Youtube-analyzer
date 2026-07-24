@@ -12,6 +12,7 @@ import AnalyzeVideo from "./AnalyzeVideo";
 import PredictIdea from "./PredictIdea";
 import TitleGenerator from "./TitleGenerator";
 import Compare from "./Compare";
+import MyVideos from "./MyVideos";
 import FeedbackModal from "../components/FeedbackModal";
 import ParticleBackground from "../components/ParticleBackground";
 
@@ -60,6 +61,7 @@ function DashboardLayout({ data, onLogout }) {
       case "predict": return <PredictIdea />;
       case "titles": return <TitleGenerator />;
       case "compare": return <Compare data={data} />;
+      case "myvideos": return <MyVideos data={data} />;
       case "history": return <HistoryPage setActiveSection={setActiveSection} />;
       case "recommendations": return <Recommendations data={data} />;
       case "settings": return <Settings data={data} onLogout={handleLogoutClick} />;

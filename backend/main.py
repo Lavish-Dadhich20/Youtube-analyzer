@@ -2,7 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
-from routers import analyze, trending, predict, auth, dashboard, chat, oauth
+from routers import analyze, trending, predict, auth, dashboard, chat, oauth, videos
+
 
 load_dotenv()
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
@@ -40,3 +41,4 @@ app.include_router(auth.router)
 app.include_router(dashboard.router)
 app.include_router(chat.router)
 app.include_router(oauth.router)
+app.include_router(videos.router)

@@ -12,6 +12,7 @@ import {
   Zap,
   BarChart,
   Type,
+  PlaySquare,
 } from "lucide-react";
 
 function Sidebar({ activeSection, setActiveSection, onLogout, collapsed, setCollapsed }) {
@@ -19,6 +20,7 @@ function Sidebar({ activeSection, setActiveSection, onLogout, collapsed, setColl
     { id: "overview", label: "Overview", icon: LayoutDashboard },
     { id: "analytics", label: "Analytics", icon: BarChart2 },
     { id: "analyze", label: "Analyze Video", icon: Search },
+    { id: "myvideos", label: "My Videos", icon: PlaySquare },
     { id: "predict", label: "Predict Idea", icon: Zap },
     { id: "titles", label: "Title Generator", icon: Type },
     { id: "compare", label: "Compare Channels", icon: BarChart },
