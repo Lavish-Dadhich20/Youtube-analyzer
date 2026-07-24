@@ -10,6 +10,7 @@ import hashlib
 import base64
 import secrets
 import requests as req
+from utils.email import send_oauth_welcome_email
 
 load_dotenv()
 
@@ -175,6 +176,12 @@ async def youtube_callback(
             })
             result = users.insert_one(user)
             user_id = str(result.inserted_id)
+            result = users.insert_one(user)
+            user_id = str(result.inserted_id)
+            try:
+                send_oauth_welcome_email(email, name)
+            except:
+                pass
 
         token = jwt.encode(
             {"user_id": user_id, "email": email},

@@ -5,6 +5,7 @@ from models.user import create_user_model, verify_password, create_session_model
 from datetime import datetime
 import jwt
 import os
+from utils.email import send_welcome_email
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -39,6 +40,13 @@ async def register(request: RegisterRequest):
         print(f"Hash length: {len(user['password'])}")
 
         result = users.insert_one(user)
+        result = users.insert_one(user)
+
+        # Send welcome email (non-blocking)
+        try:
+            send_welcome_email(request.email, request.name)
+        except:
+            pass
         saved = users.find_one({"email": request.email})
         print(f"SAVED hash length in DB: {len(saved['password'])}")
         token = jwt.encode(
