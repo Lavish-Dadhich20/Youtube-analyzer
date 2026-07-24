@@ -2,15 +2,16 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import RedirectResponse
 from database.mongo import db
 from models.user import create_user_model
+from utils.email import send_welcome_email
 from dotenv import load_dotenv
+from urllib.parse import urlencode
+from datetime import datetime, timedelta
 import jwt
 import os
-import json
 import hashlib
 import base64
 import secrets
 import requests as req
-from utils.email import send_oauth_welcome_email
 
 load_dotenv()
 
@@ -20,17 +21,15 @@ router = APIRouter(prefix="/auth", tags=["OAuth"])
 
 SECRET_KEY = os.getenv("SECRET_KEY", "youtube_analyzer_secret_key_2026_secure")
 REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI", "http://localhost:8000/auth/youtube/callback")
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
-
-CLIENT_SECRETS_FILE = os.path.join(
-    os.path.dirname(__file__), "..", "client_secret.json"
-)
+DEFAULT_FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
 pkce_store = {}
 
 def get_client_config():
-    with open(CLIENT_SECRETS_FILE) as f:
-        return json.load(f)["web"]
+    return {
+        "client_id": os.getenv("GOOGLE_CLIENT_ID"),
+        "client_secret": os.getenv("GOOGLE_CLIENT_SECRET"),
+    }
 
 def generate_pkce_pair():
     code_verifier = secrets.token_urlsafe(64)
@@ -41,33 +40,34 @@ def generate_pkce_pair():
 
 @router.get("/youtube/login")
 async def youtube_login():
-    config = get_client_config()
-    code_verifier, code_challenge = generate_pkce_pair()
-    state = secrets.token_urlsafe(16)
-    pkce_store[state] = code_verifier
+    try:
+        config = get_client_config()
+        code_verifier, code_challenge = generate_pkce_pair()
+        state = secrets.token_urlsafe(16)
+        pkce_store[state] = code_verifier
 
-    params = {
-        "client_id": config["client_id"],
-        "redirect_uri": REDIRECT_URI,
-        "response_type": "code",
-        "scope": " ".join([
-            "openid",
-            "https://www.googleapis.com/auth/userinfo.email",
-            "https://www.googleapis.com/auth/userinfo.profile",
-            "https://www.googleapis.com/auth/youtube.readonly",
-        ]),
-        "state": state,
-        "access_type": "offline",
-        "prompt": "consent",
-        "code_challenge": code_challenge,
-        "code_challenge_method": "S256",
-    }
+        params = {
+            "client_id": config["client_id"],
+            "redirect_uri": REDIRECT_URI,
+            "response_type": "code",
+            "scope": " ".join([
+                "openid",
+                "https://www.googleapis.com/auth/userinfo.email",
+                "https://www.googleapis.com/auth/userinfo.profile",
+                "https://www.googleapis.com/auth/youtube.readonly",
+            ]),
+            "state": state,
+            "access_type": "offline",
+            "prompt": "consent",
+            "code_challenge": code_challenge,
+            "code_challenge_method": "S256",
+        }
 
-    auth_url = "https://accounts.google.com/o/oauth2/auth?" + "&".join(
-        f"{k}={v}" for k, v in params.items()
-    )
-
-    return RedirectResponse(auth_url)
+        auth_url = "https://accounts.google.com/o/oauth2/auth?" + urlencode(params)
+        return RedirectResponse(auth_url)
+    except Exception as e:
+        print(f"YOUTUBE LOGIN ERROR: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/youtube/callback")
 async def youtube_callback(
@@ -75,10 +75,15 @@ async def youtube_callback(
     error: str = None,
     state: str = None
 ):
+    # Local alias — deliberately named differently from the module-level
+    # constant so there is zero chance of a Python local-variable-shadowing
+    # bug like the one that caused UnboundLocalError here before.
+    frontend_url = DEFAULT_FRONTEND_URL
+
     if error:
         return RedirectResponse(
-        f"{FRONTEND_URL}/dashboard?oauth_error=failed"
-    )
+            f"{frontend_url}/dashboard?oauth_error={error}"
+        )
 
     if not code:
         raise HTTPException(status_code=400, detail="No code received")
@@ -110,6 +115,9 @@ async def youtube_callback(
             raise Exception(f"Token error: {token_data}")
 
         access_token = token_data["access_token"]
+        refresh_token = token_data.get("refresh_token")
+        expires_in = token_data.get("expires_in", 3600)
+        token_expiry = (datetime.now() + timedelta(seconds=expires_in)).isoformat()
 
         user_info_response = req.get(
             "https://www.googleapis.com/oauth2/v2/userinfo",
@@ -148,17 +156,22 @@ async def youtube_callback(
 
         users = db["users"]
         existing = users.find_one({"email": email})
+        is_new_user = existing is None
+
+        update_fields = {
+            **channel_data,
+            "profile_picture": picture,
+            "oauth_connected": True,
+            "access_token": access_token,
+            "token_expiry": token_expiry,
+        }
+        # Google only reliably returns refresh_token on first consent; keep the old one if a new one isn't sent
+        if refresh_token:
+            update_fields["refresh_token"] = refresh_token
 
         if existing:
-            users.update_one(
-                {"email": email},
-                {"$set": {
-                    **channel_data,
-                    "profile_picture": picture,
-                    "oauth_connected": True,
-                    "access_token": access_token,
-                }}
-            )
+            update_fields["last_login"] = datetime.now().isoformat()
+            users.update_one({"email": email}, {"$set": update_fields})
             user_id = str(existing["_id"])
         else:
             user = create_user_model(
@@ -168,18 +181,9 @@ async def youtube_callback(
                 channel_url=channel_data.get("channel_url", ""),
                 channel_id=channel_data.get("channel_id", ""),
             )
-            user.update({
-                **channel_data,
-                "profile_picture": picture,
-                "oauth_connected": True,
-                "access_token": access_token,
-            })
+            user.update(update_fields)
             result = users.insert_one(user)
             user_id = str(result.inserted_id)
-            try:
-                send_oauth_welcome_email(email, name)
-            except:
-                pass
 
         token = jwt.encode(
             {"user_id": user_id, "email": email},
@@ -187,13 +191,19 @@ async def youtube_callback(
             algorithm="HS256"
         )
 
-        FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+        # Welcome email — sent once, only for brand-new accounts. Never blocks the redirect.
+        if is_new_user:
+            try:
+                send_welcome_email(email, name)
+            except Exception as mail_err:
+                print(f"Welcome email failed (non-critical): {mail_err}")
+
         return RedirectResponse(
-        f"{FRONTEND_URL}/dashboard?token={token}&name={name}&oauth=success"
-)
+            f"{frontend_url}/dashboard?token={token}&name={name}&oauth=success"
+        )
 
     except Exception as e:
         print(f"OAuth error: {e}")
         return RedirectResponse(
-        f"{FRONTEND_URL}/dashboard?oauth_error={error}"
-)
+            f"{frontend_url}/dashboard?oauth_error=failed"
+        )
