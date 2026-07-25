@@ -3,11 +3,26 @@ from database.mongo import db
 from utils.youtube_token import get_valid_access_token
 import jwt
 import os
+import isodate
 import requests as req
 
 router = APIRouter(prefix="/dashboard", tags=["Videos"])
 
 SECRET_KEY = os.getenv("SECRET_KEY", "youtube_analyzer_secret_key_2026_secure")
+
+# YouTube's current official max length for a Short. Duration is the only
+# reliable signal the Data API exposes — it doesn't return aspect ratio,
+# so this is an approximation, not a guarantee, for edge cases near 3 min.
+SHORTS_MAX_SECONDS = 180
+
+
+def parse_duration_seconds(iso_duration):
+    if not iso_duration:
+        return 0
+    try:
+        return int(isodate.parse_duration(iso_duration).total_seconds())
+    except Exception:
+        return 0
 
 
 def get_current_user(authorization: str = Header(None)):
@@ -115,7 +130,7 @@ async def list_videos(authorization: str = Header(None), page_token: str = None)
 
     vid_resp = req.get(
         "https://www.googleapis.com/youtube/v3/videos",
-        params={"part": "snippet,statistics", "id": ",".join(video_ids)},
+        params={"part": "snippet,statistics,contentDetails", "id": ",".join(video_ids)},
         headers=headers,
         timeout=20
     )
@@ -125,6 +140,7 @@ async def list_videos(authorization: str = Header(None), page_token: str = None)
     for v in vid_data.get("items", []):
         stats = v.get("statistics", {})
         snippet = v.get("snippet", {})
+        duration_seconds = parse_duration_seconds(v.get("contentDetails", {}).get("duration"))
         videos.append({
             "id": v["id"],
             "title": snippet.get("title"),
@@ -133,6 +149,8 @@ async def list_videos(authorization: str = Header(None), page_token: str = None)
             "views": int(stats.get("viewCount", 0)),
             "likes": int(stats.get("likeCount", 0)),
             "comments": int(stats.get("commentCount", 0)),
+            "duration_seconds": duration_seconds,
+            "is_short": 0 < duration_seconds <= SHORTS_MAX_SECONDS,
         })
 
     return {
@@ -189,7 +207,7 @@ async def search_videos(q: str, authorization: str = Header(None), page_token: s
 
     vid_resp = req.get(
         "https://www.googleapis.com/youtube/v3/videos",
-        params={"part": "snippet,statistics", "id": ",".join(video_ids)},
+        params={"part": "snippet,statistics,contentDetails", "id": ",".join(video_ids)},
         headers=headers,
         timeout=20
     )
@@ -199,6 +217,7 @@ async def search_videos(q: str, authorization: str = Header(None), page_token: s
     for v in vid_data.get("items", []):
         stats = v.get("statistics", {})
         snippet = v.get("snippet", {})
+        duration_seconds = parse_duration_seconds(v.get("contentDetails", {}).get("duration"))
         videos.append({
             "id": v["id"],
             "title": snippet.get("title"),
@@ -207,6 +226,8 @@ async def search_videos(q: str, authorization: str = Header(None), page_token: s
             "views": int(stats.get("viewCount", 0)),
             "likes": int(stats.get("likeCount", 0)),
             "comments": int(stats.get("commentCount", 0)),
+            "duration_seconds": duration_seconds,
+            "is_short": 0 < duration_seconds <= SHORTS_MAX_SECONDS,
         })
 
     return {

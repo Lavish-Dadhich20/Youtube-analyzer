@@ -14,9 +14,16 @@ function MyVideos({ data }) {
   const [query, setQuery] = useState("");
   const [activeQuery, setActiveQuery] = useState(""); // the query actually being searched
   const [searching, setSearching] = useState(false);
+  const [filter, setFilter] = useState("all"); // "all" | "videos" | "shorts"
 
   const token = localStorage.getItem("token");
   const isSearchMode = activeQuery.trim().length > 0;
+
+  const filteredVideos = videos.filter((v) => {
+    if (filter === "videos") return !v.is_short;
+    if (filter === "shorts") return v.is_short;
+    return true;
+  });
 
   const fetchVideos = async (pageToken = null) => {
     try {
@@ -248,6 +255,26 @@ function MyVideos({ data }) {
         </p>
       )}
 
+      <div className="flex bg-gray-900 border border-gray-800 rounded-lg p-1 gap-1 w-fit">
+        {[
+          { id: "all", label: "All" },
+          { id: "videos", label: "Videos" },
+          { id: "shorts", label: "Shorts" },
+        ].map((opt) => (
+          <button
+            key={opt.id}
+            onClick={() => setFilter(opt.id)}
+            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition ${
+              filter === opt.id
+                ? "bg-red-600 text-white"
+                : "text-gray-400 hover:text-white"
+            }`}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
+
       {error && <p className="text-red-500 text-sm">{error}</p>}
 
       {loading ? (
@@ -257,13 +284,20 @@ function MyVideos({ data }) {
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {videos.map((v) => (
+            {filteredVideos.map((v) => (
               <button
                 key={v.id}
                 onClick={() => openVideo(v.id)}
                 className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden text-left hover:border-red-600 transition min-w-0"
               >
-                <img src={v.thumbnail} alt={v.title} className="w-full aspect-video object-cover" />
+                <div className="relative">
+                  <img src={v.thumbnail} alt={v.title} className="w-full aspect-video object-cover" />
+                  {v.is_short && (
+                    <span className="absolute top-2 right-2 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                      Short
+                    </span>
+                  )}
+                </div>
                 <div className="p-3 min-w-0">
                   <p className="text-white text-sm font-semibold line-clamp-2 mb-2 break-words">
                     {v.title}
@@ -281,10 +315,14 @@ function MyVideos({ data }) {
             ))}
           </div>
 
-          {videos.length === 0 && (
+          {filteredVideos.length === 0 && (
             <p className="text-gray-500 text-sm text-center py-8">
               {isSearchMode
                 ? `No videos found matching "${activeQuery}".`
+                : filter === "shorts"
+                ? "No Shorts found on this channel yet."
+                : filter === "videos"
+                ? "No regular videos found — try the Shorts filter."
                 : "No videos found on this channel yet."}
             </p>
           )}
