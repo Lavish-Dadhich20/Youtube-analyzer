@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser, registerUser } from "../services/api";
 import ParticleBackground from "../components/ParticleBackground";
@@ -13,7 +13,6 @@ function Login() {
   const [channelUrl, setChannelUrl] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  
 
   const navigate = useNavigate();
 
@@ -21,10 +20,6 @@ function Login() {
     e.preventDefault();
     setError("");
     setLoading(true);
-
-    useEffect(() => {
-  fetch(`${BACKEND_URL}/health`).catch(() => {});
-}, []);
 
     try {
       let data;
@@ -62,33 +57,36 @@ function Login() {
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex items-start gap-3">
-            <input
-              type="checkbox"
-              id="agree"
-              checked={agreed}
-              onChange={(e) => setAgreed(e.target.checked)}
-              className="mt-1 w-4 h-4 accent-red-600 cursor-pointer flex-shrink-0"
-            />
-            <label htmlFor="agree" className="text-gray-400 text-sm cursor-pointer">
-              I agree to the{" "}
-              <a
-                href="/terms"
-                target="_blank"
-                className="text-red-500 hover:text-red-400 underline"
-              >
-                Terms of Service
-              </a>{" "}
-              and{" "}
-              <a
-                href="/privacy"
-                target="_blank"
-                className="text-red-500 hover:text-red-400 underline"
-              >
-                Privacy Policy
-              </a>
-            </label>
-          </div>
+          {/* Consent checkbox: only required at account creation, not on every login */}
+          {isRegister && (
+            <div className="flex items-start gap-3">
+              <input
+                type="checkbox"
+                id="agree"
+                checked={agreed}
+                onChange={(e) => setAgreed(e.target.checked)}
+                className="mt-1 w-4 h-4 accent-red-600 cursor-pointer flex-shrink-0"
+              />
+              <label htmlFor="agree" className="text-gray-400 text-sm cursor-pointer">
+                I agree to the{" "}
+                <a
+                  href="/terms"
+                  target="_blank"
+                  className="text-red-500 hover:text-red-400 underline"
+                >
+                  Terms of Service
+                </a>{" "}
+                and{" "}
+                <a
+                  href="/privacy"
+                  target="_blank"
+                  className="text-red-500 hover:text-red-400 underline"
+                >
+                  Privacy Policy
+                </a>
+              </label>
+            </div>
+          )}
 
           <div>
             <label className="text-sm text-gray-400 block mb-1">Email</label>
@@ -134,7 +132,7 @@ function Login() {
 
           <button
             type="submit"
-            disabled={loading || !agreed}
+            disabled={loading || (isRegister && !agreed)}
             className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white py-3 rounded-lg font-semibold transition"
           >
             {loading
@@ -157,17 +155,7 @@ function Login() {
 
           <a
             href={`${BACKEND_URL}/auth/youtube/login`}
-            onClick={(e) => {
-              if (!agreed) {
-                e.preventDefault();
-                setError("Please agree to the Terms of Service and Privacy Policy first.");
-              }
-            }}
-            className={`mt-4 w-full flex items-center justify-center gap-3 py-3 rounded-lg font-semibold transition ${
-              agreed
-                ? "bg-white hover:bg-gray-100 text-gray-900"
-                : "bg-gray-700 text-gray-400 cursor-not-allowed"
-            }`}
+            className="mt-4 w-full flex items-center justify-center gap-3 bg-white hover:bg-gray-100 text-gray-900 py-3 rounded-lg font-semibold transition"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
@@ -189,6 +177,19 @@ function Login() {
             </svg>
             Continue with Google
           </a>
+
+          {/* Passive disclaimer for Google sign-in — applies to both new and returning users, no checkbox needed */}
+          <p className="text-gray-500 text-xs text-center mt-3">
+            By continuing with Google, you agree to our{" "}
+            <a href="/terms" target="_blank" className="text-red-500 hover:text-red-400 underline">
+              Terms of Service
+            </a>{" "}
+            and{" "}
+            <a href="/privacy" target="_blank" className="text-red-500 hover:text-red-400 underline">
+              Privacy Policy
+            </a>
+            .
+          </p>
         </div>
 
         <p className="text-gray-400 text-sm text-center mt-6">
