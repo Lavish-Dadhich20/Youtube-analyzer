@@ -6,6 +6,7 @@ import { getTrendingVideos } from "../services/api";
 import { formatCompactNumber } from "../services/format";
 import { TrendingCardSkeleton } from "../components/Skeleton";
 import ParticleBackground from "../components/ParticleBackground";
+import BACKEND_URL from "../services/config";
 
 const fadeInUp = {
   initial: { opacity: 0, y: 40 },
@@ -19,6 +20,10 @@ function Home() {
 
   const [previewVideos, setPreviewVideos] = useState([]);
   const [previewLoading, setPreviewLoading] = useState(true);
+
+  useEffect(() => {
+  fetch(`${BACKEND_URL}/health`).catch(() => {});
+}, []);
 
   useEffect(() => {
     const fetchPreview = async () => {
