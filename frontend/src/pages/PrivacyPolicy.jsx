@@ -55,8 +55,8 @@ function PrivacyPolicy() {
           <h2 className="text-xl font-bold text-white mb-2">6. Contact</h2>
           <p>
             For any privacy concerns, contact us at:{" "}
-            <a href="mailto:lavishdadhich2006@gmail.com" className="text-red-500 hover:text-red-400">
-              lavishdadhich2006@gmail.com
+            <a href="mailto:ytanalyzer.app@gmail.com" className="text-red-500 hover:text-red-400">
+              ytanalyzer.app@gmail.com
             </a>
           </p>
         </section>
