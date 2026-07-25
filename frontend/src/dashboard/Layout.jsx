@@ -152,7 +152,8 @@ function DashboardLayout({ data, onLogout }) {
       {showFeedback && (
         <FeedbackModal
           onClose={() => setShowFeedback(false)}
-          onLogout={onLogout}
+          onComplete={onLogout}
+          context="logout"
         />
       )}
     </div>

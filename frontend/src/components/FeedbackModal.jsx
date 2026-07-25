@@ -3,7 +3,11 @@ import { Star, X, Send } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import BACKEND_URL from "../services/config";
 
-function FeedbackModal({ onClose, onLogout }) {
+// `onComplete` fires when the flow should proceed — either after a successful
+// submit (with a short delay) or when the user hits Skip. `context` controls
+// which action onComplete actually triggers (e.g. "logout" or "delete_account")
+// and lightly customizes the copy. `heading` lets the caller override the title.
+function FeedbackModal({ onClose, onComplete, context = "logout", heading }) {
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [category, setCategory] = useState("");
@@ -20,6 +24,14 @@ function FeedbackModal({ onClose, onLogout }) {
     "Performance Issue",
   ];
 
+  const defaultHeading =
+    context === "delete_account" ? "Sorry to see you go 💔" : "Before you go... 👋";
+
+  const defaultSubtext =
+    context === "delete_account"
+      ? "We'd love to know what we could've done better — your feedback genuinely helps."
+      : "Help us improve YTAnalyzer with a quick rating!";
+
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
@@ -34,21 +46,22 @@ function FeedbackModal({ onClose, onLogout }) {
           rating,
           category,
           comment,
+          context,
         }),
       });
       setSubmitted(true);
       setTimeout(() => {
-        onLogout();
+        onComplete();
       }, 2000);
     } catch (err) {
-      onLogout();
+      onComplete();
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleSkip = () => {
-    onLogout();
+    onComplete();
   };
 
   return (
@@ -82,17 +95,17 @@ function FeedbackModal({ onClose, onLogout }) {
               <p className="text-gray-400 text-sm">
                 Your input helps us improve YTAnalyzer.
               </p>
-              <p className="text-gray-500 text-xs mt-2">Logging you out...</p>
+              <p className="text-gray-500 text-xs mt-2">
+                {context === "delete_account" ? "Deleting your account..." : "Logging you out..."}
+              </p>
             </motion.div>
           ) : (
             <>
               <div className="mb-6">
                 <h3 className="text-white font-bold text-xl mb-1">
-                  Before you go... 👋
+                  {heading || defaultHeading}
                 </h3>
-                <p className="text-gray-400 text-sm">
-                  Help us improve YTAnalyzer with a quick rating!
-                </p>
+                <p className="text-gray-400 text-sm">{defaultSubtext}</p>
               </div>
 
               <div className="mb-6">
@@ -157,7 +170,11 @@ function FeedbackModal({ onClose, onLogout }) {
                 <textarea
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
-                  placeholder="Tell us what you loved or what we can improve..."
+                  placeholder={
+                    context === "delete_account"
+                      ? "What made you decide to leave? We'd love to know..."
+                      : "Tell us what you loved or what we can improve..."
+                  }
                   rows={3}
                   className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-600 text-sm focus:outline-none focus:border-red-600 resize-none"
                 />
@@ -173,10 +190,18 @@ function FeedbackModal({ onClose, onLogout }) {
                 <button
                   onClick={handleSubmit}
                   disabled={submitting || rating === 0}
-                  className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white py-2.5 rounded-lg text-sm font-semibold transition flex items-center justify-center gap-2"
+                  className={`flex-1 text-white py-2.5 rounded-lg text-sm font-semibold transition flex items-center justify-center gap-2 ${
+                    context === "delete_account"
+                      ? "bg-red-700 hover:bg-red-800 disabled:bg-gray-700 disabled:cursor-not-allowed"
+                      : "bg-red-600 hover:bg-red-700 disabled:bg-gray-700 disabled:cursor-not-allowed"
+                  }`}
                 >
                   <Send size={14} />
-                  {submitting ? "Sending..." : "Submit & Logout"}
+                  {submitting
+                    ? "Sending..."
+                    : context === "delete_account"
+                    ? "Submit & Delete Account"
+                    : "Submit & Logout"}
                 </button>
               </div>
 

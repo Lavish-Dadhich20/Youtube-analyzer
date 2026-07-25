@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, Moon, Sun, Bell, Shield, Trash2, Tv } from "lucide-react";
 import BACKEND_URL from "../services/config";
+import FeedbackModal from "../components/FeedbackModal";
 
 function Settings({ data, onLogout }) {
   const navigate = useNavigate();
@@ -11,7 +12,8 @@ function Settings({ data, onLogout }) {
   const [notifications, setNotifications] = useState(true);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
-    
+  const [showDeleteFeedback, setShowDeleteFeedback] = useState(false);
+
   const handleThemeChange = (newTheme) => {
     setTheme(newTheme);
     localStorage.setItem("theme", newTheme);
@@ -22,12 +24,20 @@ function Settings({ data, onLogout }) {
     }
   };
 
-  const handleDeleteAccount = async () => {
+  // Step 1: user clicks Delete, then Confirm — this just opens the feedback
+  // modal. The actual account deletion only runs after they submit or skip
+  // that modal, via performDelete() below.
+  const handleDeleteClick = () => {
     if (!deleteConfirm) {
       setDeleteConfirm(true);
       return;
     }
+    setShowDeleteFeedback(true);
+  };
 
+  // Step 2: runs once the feedback modal completes (submit or skip).
+  const performDelete = async () => {
+    setShowDeleteFeedback(false);
     setDeleting(true);
     try {
       const token = localStorage.getItem("token");
@@ -243,7 +253,7 @@ function Settings({ data, onLogout }) {
               </button>
             )}
             <button
-              onClick={handleDeleteAccount}
+              onClick={handleDeleteClick}
               disabled={deleting}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1 flex-shrink-0 ${
                 deleteConfirm
@@ -257,6 +267,14 @@ function Settings({ data, onLogout }) {
           </div>
         </div>
       </div>
+
+      {showDeleteFeedback && (
+        <FeedbackModal
+          onClose={() => setShowDeleteFeedback(false)}
+          onComplete={performDelete}
+          context="delete_account"
+        />
+      )}
     </div>
   );
 }
