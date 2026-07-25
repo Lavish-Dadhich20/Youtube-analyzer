@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser, registerUser } from "../services/api";
 import ParticleBackground from "../components/ParticleBackground";
