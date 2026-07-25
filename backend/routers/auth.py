@@ -1,8 +1,7 @@
-from fastapi import APIRouter, HTTPException, Header, BackgroundTasks
+from fastapi import APIRouter, HTTPException, Header
 from pydantic import BaseModel
 from database.mongo import db
 from models.user import create_user_model, verify_password, create_session_model
-from utils.email import send_welcome_email
 from datetime import datetime
 import jwt
 import os
@@ -22,7 +21,7 @@ class LoginRequest(BaseModel):
     password: str
 
 @router.post("/register")
-async def register(request: RegisterRequest, background_tasks: BackgroundTasks):
+async def register(request: RegisterRequest):
     try:
         users = db["users"]
         existing = users.find_one({"email": request.email})
@@ -46,10 +45,6 @@ async def register(request: RegisterRequest, background_tasks: BackgroundTasks):
             SECRET_KEY,
             algorithm="HS256"
         )
-
-        # Welcome email now runs AFTER the response is sent — registration
-        # no longer waits on Gmail's SMTP round-trip to finish.
-        background_tasks.add_task(send_welcome_email, request.email, request.name)
 
         return {
             "message": "Account created successfully!",
