@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, BackgroundTasks
 from fastapi.responses import RedirectResponse
 from database.mongo import db
 from models.user import create_user_model
@@ -71,6 +71,7 @@ async def youtube_login():
 
 @router.get("/youtube/callback")
 async def youtube_callback(
+    background_tasks: BackgroundTasks,
     code: str = None,
     error: str = None,
     state: str = None
@@ -191,12 +192,10 @@ async def youtube_callback(
             algorithm="HS256"
         )
 
-        # Welcome email — sent once, only for brand-new accounts. Never blocks the redirect.
+        # Welcome email now runs AFTER the redirect is sent — the callback
+        # no longer waits on Gmail's SMTP round-trip to finish.
         if is_new_user:
-            try:
-                send_welcome_email(email, name)
-            except Exception as mail_err:
-                print(f"Welcome email failed (non-critical): {mail_err}")
+            background_tasks.add_task(send_welcome_email, email, name)
 
         return RedirectResponse(
             f"{frontend_url}/dashboard?token={token}&name={name}&oauth=success"

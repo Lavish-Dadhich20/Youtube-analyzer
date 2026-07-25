@@ -1,11 +1,11 @@
-from fastapi import APIRouter, HTTPException, Header
+from fastapi import APIRouter, HTTPException, Header, BackgroundTasks
 from pydantic import BaseModel
 from database.mongo import db
 from models.user import create_user_model, verify_password, create_session_model
+from utils.email import send_welcome_email
 from datetime import datetime
 import jwt
 import os
-from utils.email import send_welcome_email
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -22,7 +22,7 @@ class LoginRequest(BaseModel):
     password: str
 
 @router.post("/register")
-async def register(request: RegisterRequest):
+async def register(request: RegisterRequest, background_tasks: BackgroundTasks):
     try:
         users = db["users"]
         existing = users.find_one({"email": request.email})
@@ -36,19 +36,8 @@ async def register(request: RegisterRequest):
             channel_url=request.channel_url
         )
 
-        print(f"Password being stored: {user['password']}")
-        print(f"Hash length: {len(user['password'])}")
-
-        result = users.insert_one(user)
         result = users.insert_one(user)
 
-        # Send welcome email (non-blocking)
-        try:
-            send_welcome_email(request.email, request.name)
-        except:
-            pass
-        saved = users.find_one({"email": request.email})
-        print(f"SAVED hash length in DB: {len(saved['password'])}")
         token = jwt.encode(
             {
                 "user_id": str(result.inserted_id),
@@ -57,6 +46,10 @@ async def register(request: RegisterRequest):
             SECRET_KEY,
             algorithm="HS256"
         )
+
+        # Welcome email now runs AFTER the response is sent — registration
+        # no longer waits on Gmail's SMTP round-trip to finish.
+        background_tasks.add_task(send_welcome_email, request.email, request.name)
 
         return {
             "message": "Account created successfully!",
@@ -78,11 +71,7 @@ async def login(request: LoginRequest):
         if not user:
             raise HTTPException(status_code=404, detail="Account not found")
 
-        print(f"Stored hash length: {len(user['password'])}")
-        print(f"Password attempt: {request.password}")
-        
         result = verify_password(request.password, user["password"])
-        print(f"Verify result: {result}")
 
         if not result:
             raise HTTPException(status_code=401, detail="Wrong password")
@@ -152,74 +141,9 @@ async def delete_account(authorization: str = Header(None)):
                 print(f"Token revoke failed (non-critical): {revoke_err}")
 
         users.delete_one({"email": email})
-        users.delete_one({"email": email})
 
         return {"message": "Account deleted successfully"}
     except HTTPException:
         raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    
-class FeedbackRequest(BaseModel):
-    rating: int
-    category: str = ""
-    comment: str = ""
-
-@router.post("/feedback")
-async def submit_feedback(
-    request: FeedbackRequest,
-    authorization: str = Header(None)
-):
-    try:
-        name = "Anonymous"
-        email = "anonymous"
-
-        if authorization and authorization.startswith("Bearer "):
-            try:
-                token = authorization.split(" ")[1]
-                payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-                email = payload.get("email", "anonymous")
-                users = db["users"]
-                user = users.find_one({"email": email})
-                if user:
-                    name = user.get("name", "Anonymous")
-            except:
-                pass
-
-        feedback_collection = db["feedback"]
-        feedback_collection.insert_one({
-            "name": name,
-            "email": email,
-            "rating": request.rating,
-            "category": request.category,
-            "comment": request.comment,
-            "submitted_at": datetime.now().isoformat(),
-        })
-
-        print(f"✅ Feedback from {name}: {request.rating}⭐ - {request.category}")
-
-        return {"message": "Feedback submitted successfully"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@router.post("/agree-terms")
-async def agree_terms(authorization: str = Header(None)):
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Not logged in")
-    try:
-        token = authorization.split(" ")[1]
-        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-        email = payload.get("email")
-
-        users = db["users"]
-        users.update_one(
-            {"email": email},
-            {"$set": {
-                "terms_agreed": True,
-                "terms_agreed_at": datetime.now().isoformat()
-            }}
-        )
-        print(f"✅ Terms agreed by {email}")
-        return {"message": "Terms agreement saved"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
